@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "typeRoots": ["node_modules/@types"],
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "pretty": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true,
+    "lib": ["es2017.object", "es2015", "es2017", "dom"],
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noEmit": false,
+    "importHelpers": false,
+    "baseUrl": "src",
+    "paths": {
+      "@database": ["database"],
+      "@config": ["config"],
+      "@/*": ["*"],
+      "@repository/*": ["repository/*"],
+      "@controllers/*": ["controllers/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@enums/*": ["enums/*"],
+      "@interfaces/*": ["interfaces/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@exceptions/*": ["exceptions/*"],
+      "@utils/*": ["utils/*"]
+    }
+  },
+  "files": ["./node_modules/@types/node/index.d.ts"],
+  "include": ["src/**/*.ts", "package.json", ".env"],
+  "exclude": ["node_modules"]
+}

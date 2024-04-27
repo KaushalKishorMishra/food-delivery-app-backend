@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"] // ! enable this line to use multi schema
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["public", "auth"] // ! change this line to use multi schema
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  user_name String    @unique
+  full_name String?
+  phone     String?
+  password  String
+  role      Role      @default(USER)
+  avatar    String?
+  address   String?
+  review    Review[]
+  order     Order[]
+  token     Token[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@schema("auth")
+}
+
+model Store {
+  id         String    @id @default(cuid())
+  store_name String    @unique
+  store_code String?   @unique @default(uuid())
+  address    String
+  phone      String    @unique
+  email      String?   @unique
+  avatar     String?
+  store_type StoreType
+  menu_list  Menu[]
+  review     Review[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@schema("auth")
+}
+
+// menu and item have many to many relationship
+model Menu {
+  id         String     @id @default(cuid())
+  menu_name  String
+  menu_code  String?    @unique @default(uuid())
+  price      Float
+  image_list Image[]
+  menu_type  MenuType
+  item_list  MenuItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deletedAt  DateTime?
+  store      Store      @relation(fields: [store_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  store_id   String
+
+  @@schema("public")
+}
+
+model Item {
+  id         String       @id @default(cuid())
+  item_name  String
+  item_code  String?      @unique @default(uuid())
+  price      Float
+  image      Image[]
+  menu       MenuItem[]
+  recipe     Recipe?
+  orderdItem OrderdItem[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime?
+
+  @@schema("public")
+}
+
+model MenuItem {
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  menu      Menu      @relation(fields: [menu_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  menu_id   String
+  item      Item      @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  item_id   String
+
+  @@id([menu_id, item_id])
+  @@schema("public")
+}
+
+model Recipe {
+  id          String             @id @default(cuid())
+  recipe_name String
+  recipe_code String?            @unique @default(uuid())
+  image       Image[]
+  ingredient  RecipeIngredient[]
+  amount      Float
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+  item        Item               @relation(fields: [item_id], references: [id])
+  item_id     String             @unique
+
+  @@schema("public")
+}
+
+model Ingredient {
+  id              String             @id @default(cuid())
+  ingredient_name String
+  ingredient_code String?            @unique @default(uuid())
+  image           Image[]
+  recipe          RecipeIngredient[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+
+  @@schema("public")
+}
+
+model RecipeIngredient {
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  recipe        Recipe     @relation(fields: [recipe_id], references: [id])
+  recipe_id     String
+  ingredient    Ingredient @relation(fields: [ingredient_id], references: [id])
+  ingredient_id String
+
+  @@id([recipe_id, ingredient_id])
+  @@schema("public")
+}
+
+model Order {
+  id          String       @id @default(cuid())
+  order_code  String?      @unique @default(uuid())
+  total       Float
+  status      String
+  orderd_item OrderdItem[]
+  token       Token[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  user        User         @relation(fields: [user_id], references: [id])
+  user_id     String
+
+  @@schema("auth")
+}
+
+model OrderdItem {
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  order     Order     @relation(fields: [order_id], references: [id])
+  order_id  String
+  item      Item      @relation(fields: [item_id], references: [id])
+  item_id   String
+
+  @@id([order_id, item_id])
+  @@schema("auth")
+}
+
+model Image {
+  id            String      @id @default(cuid())
+  image         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+  menu          Menu?       @relation(fields: [menu_id], references: [id])
+  menu_id       String?
+  recipe        Recipe?     @relation(fields: [recipe_id], references: [id])
+  recipe_id     String?
+  ingredient    Ingredient? @relation(fields: [ingredient_id], references: [id])
+  ingredient_id String?
+  item          Item?       @relation(fields: [item_id], references: [id])
+  item_id       String?
+
+  @@schema("public")
+}
+
+model Review {
+  id        String    @id @default(cuid())
+  rating    Int?
+  comment   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  store     Store     @relation(fields: [store_id], references: [id])
+  store_id  String
+  user      User      @relation(fields: [user_id], references: [id])
+  user_id   String
+
+  @@schema("auth")
+}
+
+model Token {
+  id        String    @id @default(cuid())
+  token     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User?     @relation(fields: [user_id], references: [id])
+  user_id   String?
+  order     Order?    @relation(fields: [order_id], references: [id])
+  order_id  String?
+
+  @@schema("auth")
+}
+
+enum Role {
+  SUPER_ADMIN // ! Super Admin can (create admin, create user || in database level || change the level (user, admin)), list user, list store, list menu, list item(food), list order, list review, list token, list image
+  ADMIN // ! Admin can create store, menu, recipe, add and list ingredient, create and list item(food), list order, list review, ordered item, create and list image
+  USER // ! User can create account, order, review
+
+  @@schema("public")
+}
+
+enum StoreType {
+  RESTAURANT
+  CAFE
+  BAR
+  PUB
+  BAKERY
+  FAST_FOOD
+
+  @@schema("public")
+}
+
+enum MenuType {
+  VEG_MENU
+  NON_VEG_MENU
+  VEGAN_MENU
+
+  @@schema("public")
+}

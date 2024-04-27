@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.13.0",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.13.0"
+  },
+  "scripts": {
+    "start": "bun --watch nodemon index.ts",
+    "dev": "bun --watch nodemon index.ts",
+    "prisma:generate": "bunx prisma generate",
+    "prisma:migrate": "bunx prisma migrate dev --name init",
+    "prisma:studio": "bunx prisma studio",
+    "prisma:seed": "bunx prisma db seed --preview-feature",
+    "prisma:reset": "bunx prisma migrate reset --force --preview-feature"
+  }
+}
