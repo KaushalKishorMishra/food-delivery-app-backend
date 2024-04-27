@@ -54,7 +54,6 @@ model Store {
   @@schema("auth")
 }
 
-// menu and item have many to many relationship
 model Menu {
   id         String     @id @default(cuid())
   menu_name  String
@@ -144,17 +143,22 @@ model RecipeIngredient {
 }
 
 model Order {
-  id          String       @id @default(cuid())
-  order_code  String?      @unique @default(uuid())
-  total       Float
-  status      String
-  orderd_item OrderdItem[]
-  token       Token[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  deletedAt   DateTime?
-  user        User         @relation(fields: [user_id], references: [id])
-  user_id     String
+  id              String       @id @default(cuid())
+  order_code      String?      @unique @default(uuid())
+  total           Float
+  status          String
+  orderd_item     OrderdItem[]
+  token           Token[]
+  order_type      OrderType
+  delivery_option Boolean
+  order_status    Status       @default(PENDING)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  deletedAt       DateTime?
+  user            User         @relation(fields: [user_id], references: [id])
+  user_id         String
+  delivery        Delivery?    @relation(fields: [delivery_id], references: [id])
+  delivery_id     String?
 
   @@schema("auth")
 }
@@ -172,19 +176,34 @@ model OrderdItem {
   @@schema("auth")
 }
 
+model Delivery {
+  id                 String    @id @default(cuid())
+  delivery_id        String    @unique
+  delivery_guy_name  String
+  delivery_guy_phone String
+  delivery_status    Status    @default(PENDING)
+  delivery_time      DateTime
+  order              Order[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  @@schema("auth")
+}
+
 model Image {
   id            String      @id @default(cuid())
-  image         String
+  image         String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
-  menu          Menu?       @relation(fields: [menu_id], references: [id])
+  menu          Menu?       @relation(fields: [menu_id], references: [id], onDelete: Cascade)
   menu_id       String?
-  recipe        Recipe?     @relation(fields: [recipe_id], references: [id])
+  recipe        Recipe?     @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   recipe_id     String?
-  ingredient    Ingredient? @relation(fields: [ingredient_id], references: [id])
+  ingredient    Ingredient? @relation(fields: [ingredient_id], references: [id], onDelete: Cascade)
   ingredient_id String?
-  item          Item?       @relation(fields: [item_id], references: [id])
+  item          Item?       @relation(fields: [item_id], references: [id], onDelete: Cascade)
   item_id       String?
 
   @@schema("public")
@@ -222,6 +241,7 @@ model Token {
 enum Role {
   SUPER_ADMIN // ! Super Admin can (create admin, create user || in database level || change the level (user, admin)), list user, list store, list menu, list item(food), list order, list review, list token, list image
   ADMIN // ! Admin can create store, menu, recipe, add and list ingredient, create and list item(food), list order, list review, ordered item, create and list image
+  DELIVERY // ! Delivery can list order, update order status, list delivery, update delivery status
   USER // ! User can create account, order, review
 
   @@schema("public")
@@ -242,6 +262,26 @@ enum MenuType {
   VEG_MENU
   NON_VEG_MENU
   VEGAN_MENU
+
+  @@schema("public")
+}
+
+enum Status {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+
+  @@schema("auth")
+}
+
+enum OrderType {
+  TAKE_AWAY
+  DINE_IN
+  DELIVERY
 
   @@schema("public")
 }
