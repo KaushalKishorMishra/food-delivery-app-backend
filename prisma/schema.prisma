@@ -17,39 +17,41 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  user_name String    @unique
-  full_name String?
-  phone     String?
-  password  String
-  role      Role      @default(USER)
-  avatar    String?
-  address   String?
-  review    Review[]
-  order     Order[]
-  token     Token[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id          String    @id @default(cuid())
+  email       String    @unique
+  user_name   String    @unique
+  full_name   String?
+  phone       String?
+  password    String
+  role        Role      @default(USER)
+  is_verified Boolean   @default(false)
+  avatar      String?
+  address     String?
+  review      Review[]
+  order       Order[]
+  token       Token[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   @@schema("auth")
 }
 
 model Store {
-  id         String    @id @default(cuid())
-  store_name String    @unique
-  store_code String?   @unique @default(uuid())
-  address    String
-  phone      String    @unique
-  email      String?   @unique
-  avatar     String?
-  store_type StoreType
-  menu_list  Menu[]
-  review     Review[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  id          String    @id @default(cuid())
+  store_name  String    @unique
+  store_code  String?   @unique @default(uuid())
+  address     String
+  phone       String    @unique
+  email       String?   @unique
+  avatar      String?
+  store_type  StoreType
+  is_verified Boolean   @default(false)
+  menu_list   Menu[]
+  review      Review[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   @@schema("auth")
 }
@@ -95,9 +97,9 @@ model MenuItem {
   menu_id   String
   item      Item      @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   item_id   String
+  @@schema("public")
 
   @@id([menu_id, item_id])
-  @@schema("public")
 }
 
 model Recipe {
@@ -137,9 +139,9 @@ model RecipeIngredient {
   recipe_id     String
   ingredient    Ingredient @relation(fields: [ingredient_id], references: [id])
   ingredient_id String
+  @@schema("public")
 
   @@id([recipe_id, ingredient_id])
-  @@schema("public")
 }
 
 model Order {
