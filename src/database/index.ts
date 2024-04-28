@@ -1,3 +1,4 @@
+import { success, c_error } from '@/utils/chalk.utils';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -6,11 +7,12 @@ const connectDatabase = async () => {
     try {
         await prisma.$connect()
             .then(() => {
-                console.log({ message: 'database connected successfully', status: 200 })
+                console.log(success('\n______________________ 🚀 Database connected successfully!!! ✔️ _____________________'))
+
             })
     } catch (error) {
-        console.log('Database connection failed', error);
-        throw new Error('Database connection failed', error);
+        console.log(c_error('Database connection failed', error));
+        throw new Error(c_error('Database connection failed', error));
     }
 }
 
