@@ -7,8 +7,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { figletText } from '@utils/figlet.utils';
-import chalk from 'chalk';
 import { c_error, info, success, warning } from '@utils/chalk.utils';
+import { logger } from './services/logger.service';
 
 
 export class App {
@@ -40,7 +40,7 @@ export class App {
             res.send(success('Hello to my food delivery app backend!!!'));
         })
         this.app.listen(this.port, async () => {
-            console.log(success(`______________________ 🚀 App listening on the port ${this.port}!!! ✔️ ______________________\n`));
+            logger.info(success(`______________________ 🚀 App listening on the port ${this.port}!!! ✔️ ______________________\n`))
             console.log(info(await figletText(`Food Delivery App`)))
         });
     }

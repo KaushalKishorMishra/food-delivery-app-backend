@@ -3,52 +3,53 @@ import { Bcrypt } from "@services/bcrypt.service";
 import { NodeMailer } from "@services/nodemailer.service";
 import type { $Enums, User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
+import { c_error } from "@utils/chalk.utils";
 
 export class User_Controller {
 
     private static from_email = "food_delivery@api.com"
 
-    public async fetch_all(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public async fetch_all(req: Request, res: Response, next: NextFunction): Promise<Response> {
         try {
             const users: User[] = await User_Repository.fetch_all();
 
             if (users.length === 0) {
-                res.status(404).json({ status: 404, message: "users not found" });
+                return res.status(404).json(c_error({ status: 404, message: "users not found" }));
             }
-            res.status(200).json({ status: 200, message: `users found `, data: users });
+            return res.status(200).json({ status: 200, message: `users found `, data: users });
         } catch (error) {
             next(error);
         }
     }
 
-    public fetch_id = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public fetch_id = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         try {
             const id = req.params.id;
 
             const find_user = await User_Repository.fetch_by_id(id);
 
             if (!find_user) {
-                res.status(404).json({ status: 404, message: "user not found" });
+                return res.status(404).json({ status: 404, message: "user not found" });
             }
 
-            res.status(200).json({ status: 200, message: `user found with id ${id}`, data: find_user });
+            return res.status(200).json({ status: 200, message: `user found with id ${id}`, data: find_user });
 
         } catch (error) {
             next(error)
         }
     }
 
-    public fetch_email = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public fetch_email = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         try {
             const email = req.params.email;
 
             const find_user = await User_Repository.fetch_by_email(email);
 
             if (!find_user) {
-                res.status(404).json({ status: 404, message: "user not found" });
+                return res.status(404).json({ status: 404, message: "user not found" });
             }
 
-            res.status(200).json({ status: 200, message: `user found with email ${email}`, data: find_user });
+            return res.status(200).json({ status: 200, message: `user found with email ${email}`, data: find_user });
 
         } catch (error) {
             next(error)
@@ -104,14 +105,14 @@ export class User_Controller {
         }
     }
 
-    public verify_email = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public verify_email = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         try {
             const { id, email } = req.params;
 
             const find_user = await User_Repository.fetch_by_email(email);
 
             if (!find_user) {
-                res.status(404).json({ status: 404, message: `user not found with ${email}` });
+                return res.status(404).json({ status: 404, message: `user not found with ${email}` });
             }
 
             const update_data: User = { ...find_user, is_verified: true };
@@ -119,17 +120,17 @@ export class User_Controller {
             const verify_email = await User_Repository.update(id, update_data);
 
             if (!verify_email) {
-                res.status(400).json({ status: 400, message: "error while verifying email" });
+                return res.status(400).json({ status: 400, message: "error while verifying email" });
             }
 
-            res.status(200).json({ status: 200, message: "email verified successfully", data: verify_email });
+            return res.status(200).json({ status: 200, message: "email verified successfully", data: verify_email });
 
         } catch (error) {
             next(error)
         }
     }
 
-    public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    public login = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         let find_user: User | null;
 
         try {
@@ -139,14 +140,14 @@ export class User_Controller {
             find_user = await User_Repository.fetch_by_email(input_details.email);
 
             if (!find_user) {
-                res.status(400).json({ status: 400, message: `user not found with this ${input_details.email}` });
+                return res.status(400).json({ status: 400, message: `user not found with this ${input_details.email}` });
             }
 
             if (find_user.password !== input_details.password) {
-                res.status(400).json({ status: 400, message: `password is incorrect` });
+                return res.status(400).json({ status: 400, message: `password is incorrect` });
             }
 
-            res.status(200).json({ status: 200, message: "user logged in successfully", data: find_user });
+            return res.status(200).json({ status: 200, message: "user logged in successfully", data: find_user });
 
         } catch (error) {
             next(error);

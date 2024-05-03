@@ -17,11 +17,11 @@ export class User_Route {
 
     private post_routes() {
         this.router.post(`${this.path}/signup`, this.user.signup);
-        this.router.get(`${this.path}/test`, () => console.log("test"))
+        this.router.get(`${this.path}/:id`, this.user.fetch_id)
     }
 
     private get_routes() {
-        this.router.get(`${this.path}`, this.user.fetch_all);
+        this.router.get(`${this.path}/all`, this.user.fetch_all);
 
     }
 }
